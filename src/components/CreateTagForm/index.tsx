@@ -1,61 +1,12 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import * as Dialog from "@radix-ui/react-dialog";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, Loader2, X } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
-import { Button } from "./ui/button";
-
-const createTagSchema = z.object({
-  title: z.string().min(3, { message: "Minimum 3 characters." })
-});
-
-type CreateTagSchema = z.infer<typeof createTagSchema>;
-
-function getSlugFromString(input: string): string {
-  return input
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^\w\s]/g, "")
-    .replace(/\s+/g, "-");
-}
+import { Button } from "../ui/button";
+import { useCreateTagForm } from "./useCreateTagForm";
 
 export function CreateTagForm() {
-  const queryClient = useQueryClient();
-
-  const { register, handleSubmit, watch, formState } = useForm<CreateTagSchema>(
-    {
-      resolver: zodResolver(createTagSchema)
-    }
-  );
-
-  const slug = watch("title") ? getSlugFromString(watch("title")) : "";
-
-  const { mutateAsync } = useMutation({
-    mutationFn: async ({ title }: CreateTagSchema) => {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      await fetch("http://localhost:3333/tags", {
-        method: "POST",
-        body: JSON.stringify({
-          title,
-          slug,
-          amountOfVideos: 0
-        })
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["get-tags"]
-      });
-    }
-  });
-
-  async function createTag({ title }: CreateTagSchema) {
-    await mutateAsync({ title });
-  }
+  const { createTag, formState, handleSubmit, register, slug } =
+    useCreateTagForm();
 
   return (
     <form onSubmit={handleSubmit(createTag)} className="w-full space-y-6">

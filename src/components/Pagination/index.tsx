@@ -4,10 +4,10 @@ import {
   ChevronsLeft,
   ChevronsRight
 } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
 
-import { Button } from "./ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "./ui/select";
+import { Button } from "../ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
+import { usePagination } from "./usePagination";
 
 interface PaginationProps {
   pages: number;
@@ -16,47 +16,11 @@ interface PaginationProps {
 }
 
 export function Pagination({ pages, items, page }: PaginationProps) {
-  const [, setSearchParams] = useSearchParams();
+  const { firstPage, lastPage, nextPage, previousPage } = usePagination({
+    page,
+    pages
+  });
 
-  function firstPage() {
-    setSearchParams((params) => {
-      params.set("page", "1");
-
-      return params;
-    });
-  }
-
-  function previousPage() {
-    if (page - 1 <= 0) {
-      return;
-    }
-
-    setSearchParams((params) => {
-      params.set("page", String(page - 1));
-
-      return params;
-    });
-  }
-
-  function nextPage() {
-    if (page + 1 > pages) {
-      return;
-    }
-
-    setSearchParams((params) => {
-      params.set("page", String(page + 1));
-
-      return params;
-    });
-  }
-
-  function lastPage() {
-    setSearchParams((params) => {
-      params.set("page", String(pages));
-
-      return params;
-    });
-  }
   return (
     <div className="flex items-center justify-between text-sm text-zinc-500">
       <span>Showing 10 of {items} items</span>
